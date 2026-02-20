@@ -67,6 +67,10 @@ void vTask1(void * parameter)
   for(;;)
   {
     printf("[Task1] Loop iteration %d\n", ++counter);
+    /*Print the priority of the task*/
+    printf("[Task1] Priority: %d\n", uxTaskPriorityGet(NULL));
+    /*Change priority to 3*/
+    vTaskPrioritySet(NULL, TASK3_PRIORITY);
   }
 }
 
@@ -79,6 +83,10 @@ void vTask2(void * parameter)
   for(;;)
   {
     printf("[Task2] Loop iteration %d\n", ++counter);
+    /*Print the priority of the task*/
+    printf("[Task2] Priority: %d\n", uxTaskPriorityGet(NULL));
+    /*Change priority to 3*/
+    vTaskPrioritySet(NULL, TASK3_PRIORITY);
   }
 }
 
@@ -91,5 +99,7 @@ void vTask3(void * parameter)
   for(;;)
   {
     printf("[Task3] Loop iteration %d\n", ++counter);
+    /*Print the priority of the task*/
+    printf("[Task3] Priority: %d\n", uxTaskPriorityGet(NULL));
   }
 }
