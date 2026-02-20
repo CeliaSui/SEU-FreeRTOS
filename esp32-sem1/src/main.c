@@ -29,8 +29,9 @@ void app_main()
     vTaskPrioritySet(NULL, TASK_MAIN_PRIORITY);
 
 	/* Create binary semaphore */
-    SemaphoreHandle_t xSemaphore = ....;
-    if (....)
+    /* Create a binary semaphore to control access to the shared resource */
+    SemaphoreHandle_t xSemaphore = xSemaphoreCreateBinary();
+    if (xSemaphore == NULL)
     {
         ESP_LOGE(TAG, "[app_main] Error creating binary semaphore.");
         exit(EXIT_FAILURE);
@@ -40,8 +41,10 @@ void app_main()
     for (int i = 0; i < NUM_TASKS; i++)
     {
         t_TaskParam param;
-        ....;
-        ....;
+        /* Assign the task ID and semaphore to the task parameter */
+        param.taskID = i;
+        param.xSemaphore = xSemaphore;
+        
         xTaskCreate(vTask, "Task", TASK_STACK_SIZE, (void *)&param, TASK_PRIORITY, &TaskHandles[i]);
         ESP_LOGI(TAG, "[app_main] Task %d created.", i);
     }
@@ -50,7 +53,8 @@ void app_main()
     https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/system/freertos.html#semaphore-api 
     xSemaphoreCreateBinary() is created in a state such that the semaphore must first be ‘given’ before it can be ‘taken’.
     */
-    ....;    
+   /* Give the semaphore initially so that the first task can take it */
+    xSemaphoreGive(xSemaphore);    
     
     /* Wait TASK_RUNNING_TIME_MS ms */
     ESP_LOGI(TAG, "[app_main] Entering blocked state...");
@@ -65,6 +69,7 @@ void app_main()
         }
     }
 
+    /* Delete the semaphore */
     if (xSemaphore != NULL)
     {
         vSemaphoreDelete(xSemaphore);
@@ -80,11 +85,13 @@ void vTask(void * param)
     {
         ESP_LOGI(TAG, "[vTask] Task %d attempts to use resource...", TaskData.taskID);
         /* Wait for the semaphore */
-        if (....)
+        /* Take the semaphore (block indefinitely until available) */
+        if (xSemaphoreTake(TaskData.xSemaphore, portMAX_DELAY) == pdTRUE)
         {
             UseResource(TaskData.taskID);
             /* Signal the semaphore */
-            ....;
+            /* Give the semaphore back so another task can use the resource */
+            xSemaphoreGive(TaskData.xSemaphore);
         }
         else
         {
