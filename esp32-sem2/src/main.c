@@ -32,8 +32,14 @@ void app_main()
     vTaskPrioritySet(NULL, TASK_MAIN_PRIORITY);
 
 	/* Create semaphore */
-    SemaphoreHandle_t xSemaphore = ....;
-    if (....)
+    /* Crear semáforo de cuenta
+       - Primer parámetro: valor máximo (NUM_RESOURCES)
+       - Segundo parámetro: valor inicial (SEMPHR_INITIAL_VALUE)
+       Esto simula que hay 2 recursos disponibles inicialmente */
+    SemaphoreHandle_t xSemaphore = xSemaphoreCreateCounting(NUM_RESOURCES, SEMPHR_INITIAL_VALUE);
+    
+    /* Comprobamos si se ha creado correctamente */
+    if (xSemaphore == NULL)
     {
         ESP_LOGE(TAG, "[app_main] Error creating semaphore.");
         exit(EXIT_FAILURE);
@@ -41,6 +47,7 @@ void app_main()
     ESP_LOGI(TAG, "[app_main] Counting semaphore created. Max. count: %d, initial value: %d", 
         NUM_RESOURCES, SEMPHR_INITIAL_VALUE);    
 
+    /*Creamos las tareas*/
     for (int i = 0; i < NUM_TASKS; i++)
     {
         t_TaskParam param;
@@ -71,12 +78,18 @@ void vTask(void * param)
     for (;;)
     {
         ESP_LOGI(TAG, "[vTask] Task %d attempts to use resource...", TaskData.taskID);
-		/* Wait for the semaphore */
-        if (.....)
+		
+        /* Intentamos tomar el semáforo
+           - Si el contador > 0, se decrementa y la tarea entra
+           - Si el contador = 0, la tarea se bloquea */
+        /* Wait for the semaphore */
+        if (xSemaphoreTake(TaskData.xSemaphore, portMAX_DELAY) == pdTRUE)
         {
+            /* La tarea ha conseguido una instancia del recurso */
             UseResource(TaskData.taskID);
 			/* Signal the semaphore */
-            .....;
+            /* Liberamos el recurso incrementando el contador */
+            xSemaphoreGive(TaskData.xSemaphore);
         }
         else
         {
@@ -89,5 +102,6 @@ void UseResource(int id)
 {
     int wait_ms = esp_random() % 500;
     ESP_LOGI(TAG, "[UseResource] Using resource. Task: %d", id);
+    /* Simula el uso del recurso durante un tiempo aleatorio */
     vTaskDelay(wait_ms / portTICK_PERIOD_MS);
 }
