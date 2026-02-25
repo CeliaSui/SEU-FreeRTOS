@@ -2,6 +2,8 @@
 #include <freertos/task.h>
 #include <freertos/queue.h>
 #include "esp_log.h"
+#include "esp_system.h"
+#include "esp_random.h"
 
 #define TASK_STACK_SIZE                 2048
 #define TASK_ACQ_PRIORITY               5
