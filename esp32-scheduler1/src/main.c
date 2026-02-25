@@ -76,6 +76,10 @@ void app_main()
 void vTask1(void * parameter)
 {
   double aux = acos(-1.0);  /* aux = PI */
+
+  TickType_t xLastWakeTime;
+  const TickType_t xPeriod = pdMS_TO_TICKS(200);
+  xLastWakeTime = xTaskGetTickCount();
  
   /* loop forever */
   for(;;)
@@ -90,6 +94,8 @@ void vTask1(void * parameter)
         }
     }    
     aux = acos(-1.0);
+    /*permite especificar un tiempo absoluto en el cual una tarea deja el estado bloqueada*/
+    vTaskDelayUntil(&xLastWakeTime, xPeriod);
   }
 }
 
@@ -99,6 +105,10 @@ void vTask1(void * parameter)
 void vTask2(void * parameter)
 {
   double aux = acos(-1.0);  /* aux = PI */
+
+  TickType_t xLastWakeTime;
+  const TickType_t xPeriod = pdMS_TO_TICKS(100);
+  xLastWakeTime = xTaskGetTickCount();
  
   /* loop forever */
   for(;;)
@@ -113,6 +123,9 @@ void vTask2(void * parameter)
         }
     }
     aux = acos(-1.0);
+
+    /*permite especificar un tiempo absoluto en el cual una tarea deja el estado bloqueada*/
+    vTaskDelayUntil(&xLastWakeTime, xPeriod);
   }
 }
 
@@ -122,6 +135,10 @@ void vTask2(void * parameter)
 void vTask3(void * parameter)
 {
   double aux = acos(-1.0);  /* aux = PI */
+
+  TickType_t xLastWakeTime;
+  const TickType_t xPeriod = pdMS_TO_TICKS(100);
+  xLastWakeTime = xTaskGetTickCount();
  
   /* loop forever */
   for(;;)
@@ -136,5 +153,8 @@ void vTask3(void * parameter)
         }
     }
     aux = acos(-1.0);
+
+    /*permite especificar un tiempo absoluto en el cual una tarea deja el estado bloqueada*/
+    vTaskDelayUntil(&xLastWakeTime, xPeriod);
   }
 }
